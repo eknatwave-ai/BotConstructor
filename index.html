@@ -1,0 +1,4226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BotConstructor</title>
+    <style>
+        :root {
+            --bg-color: #2b2b2b;
+            --card-bg: #3a3a3a;
+            --card-bg-secondary: #4a4a4a;
+            --text-color: #f5f5f5;
+            --secondary-text: #c8c8c8;
+            --tertiary-text: #9e9e9e;
+            --separator: #525252;
+            --accent-strong: #e8e8e8;
+            --accent-soft: #b0b0b0;
+            --icon-bg: #4f4f4f;
+            --button-blue: #4a8fe0;
+            --button-red: #c0574a;
+            --link-blue: #4a8fe0;
+            --danger-red: #e06a5a;
+            --input-placeholder: #8a8a8a;
+            --blue-accent: #4a8fe0;
+            --preview-bg: #3a4756;
+            --toggle-on: #4a8fe0;
+            --toggle-off: #e06a5a;
+            --switch-on: #4a8fe0;
+            --switch-off: #e05e4a;
+            --switch-knob: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: #1c1c1c;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 12px;
+        }
+
+        .tg-panel {
+            width: 420px;
+            height: 720px;
+            background: var(--bg-color);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .screen.scrollable {
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .screen.scrollable::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ================= ОБЩИЕ ================= */
+        .botfather-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 8px 16px;
+            margin: 16px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .bf-avatar {
+            width: 72px;
+            height: 72px;
+            background: var(--card-bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5c5c5c;
+            overflow: hidden;
+            color: var(--text-color);
+        }
+
+        .bf-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .bf-avatar svg {
+            width: 32px;
+            height: 32px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bf-avatar.color-avatar {
+            background: #5a9cf8;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .bf-info {
+            width: 100%;
+            text-align: center;
+        }
+
+        .bf-name {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0 8px 0;
+            padding: 0;
+            line-height: 0;
+        }
+
+        .bf-name h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .bf-description {
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 340px;
+            margin: 0 auto;
+            padding: 0;
+            text-align: center;
+        }
+
+        .back-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px 0 16px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--link-blue);
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ================= ЭКРАН 1 ================= */
+        .search-row {
+            margin: 8px 16px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            border: 1px solid #4f4f4f;
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--accent-strong);
+            flex-shrink: 0;
+        }
+
+        .search-label {
+            color: var(--accent-strong);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .mybots-header {
+            padding: 12px 24px 6px 24px;
+            flex-shrink: 0;
+        }
+
+        .mybots-header span {
+            color: var(--tertiary-text);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .bordered-section {
+            margin: 0 16px 16px 16px;
+            border-radius: 24px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .create-bot-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            position: relative;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .create-bot-row::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 56px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .plus-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .plus-circle svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent-strong);
+        }
+
+        .new-bot-btn {
+            background: none;
+            border: none;
+            color: var(--accent-strong);
+            font-size: 17px;
+            font-weight: 500;
+            padding: 0;
+            text-align: left;
+        }
+
+        .bot-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bot-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 72px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bot-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--icon-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-strong);
+            margin-right: 16px;
+            flex-shrink: 0;
+            border: 1px solid #5f5f5f;
+            font-size: 22px;
+            font-weight: 500;
+            overflow: hidden;
+        }
+
+        .bot-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .bot-text {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .bot-name {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .bot-username {
+            color: var(--secondary-text);
+            font-size: 14px;
+        }
+
+        .bot-arrow {
+            margin-left: auto;
+            width: 26px;
+            height: 26px;
+            color: var(--tertiary-text);
+            flex-shrink: 0;
+        }
+
+        .panel-footer {
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ================= ЭКРАН 2 ================= */
+        .form-group {
+            margin: 0 16px 16px 16px;
+            border-radius: 24px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        .form-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .form-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 500;
+        }
+
+        .username-group {
+            margin: 0 16px 16px 16px;
+            border-radius: 24px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+            padding: 12px 16px;
+        }
+
+        .username-prefix {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+            white-space: nowrap;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .username-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .username-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 500;
+        }
+
+        .hint-text {
+            margin: 0 16px;
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 340px;
+            padding: 0;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .hint-text code {
+            font-family: monospace;
+            background: var(--card-bg-secondary);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--accent-strong);
+        }
+
+        .spacer {
+            flex: 1;
+            min-height: 16px;
+        }
+
+        .footer {
+            position: sticky;
+            bottom: 0;
+            padding: 12px 16px 16px 16px;
+            flex-shrink: 0;
+            background: var(--bg-color);
+            z-index: 10;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .btn-create {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-create:active {
+            opacity: 0.85;
+        }
+
+        /* ================= ЭКРАН 3 ================= */
+        .token-card {
+            margin: 0 16px 16px 16px;
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 16px 20px;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .token-field {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border-radius: 999px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            border: 1px solid #4f4f4f;
+            min-height: 44px;
+            overflow: hidden;
+        }
+
+        .key-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--tertiary-text);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .token-value {
+            color: var(--secondary-text);
+            font-size: 14px;
+            font-family: monospace;
+            letter-spacing: 1.5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: clip;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-copy {
+            background: var(--button-blue);
+        }
+
+        .btn-revoke {
+            background: var(--button-red);
+        }
+
+        .description-block {
+            margin: 0 24px 16px 24px;
+            flex-shrink: 0;
+        }
+
+        .description-block p {
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .read-more {
+            color: var(--link-blue);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .read-more svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .section-title {
+            padding: 12px 24px 6px 24px;
+            color: var(--text-color);
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .settings-section {
+            margin: 0 16px 16px 16px;
+            border-radius: 32px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .setting-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 64px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .setting-icon {
+            width: 24px;
+            height: 24px;
+            color: var(--text-color);
+            margin-right: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setting-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .setting-icon svg.custom-icon {
+            width: 24px;
+            height: 24px;
+            stroke-width: 6;
+        }
+
+        .setting-icon svg.custom-icon rect,
+        .setting-icon svg.custom-icon path,
+        .setting-icon svg.custom-icon line,
+        .setting-icon svg.custom-icon circle {
+            stroke: var(--text-color);
+        }
+
+        .setting-icon svg.fill-icon {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+            stroke: none;
+        }
+
+        .setting-icon svg.fill-icon path {
+            fill: currentColor;
+            stroke: none;
+        }
+
+        .setting-label {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .setting-label.link-blue {
+            color: var(--link-blue);
+        }
+
+        .setting-label.danger-red {
+            color: var(--danger-red);
+        }
+
+        .setting-icon.link-blue svg {
+            stroke: var(--link-blue);
+        }
+
+        .setting-icon.danger-red svg {
+            stroke: var(--danger-red);
+        }
+
+        .setting-arrow {
+            width: 26px;
+            height: 26px;
+            color: var(--tertiary-text);
+            flex-shrink: 0;
+        }
+
+        .setting-item .setting-arrow.link-blue {
+            color: var(--link-blue);
+        }
+
+        /* ================= ЭКРАН 4 ================= */
+        .avatar-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .avatar-circle {
+            width: 72px;
+            height: 72px;
+            background: #5a9cf8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border: 1px solid #5c5c5c;
+            overflow: hidden;
+            color: #fff;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .btn-set-photo {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #4f4f4f;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-set-photo svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-color);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px 6px 24px;
+            flex-shrink: 0;
+        }
+
+        .section-header .title {
+            color: var(--text-color);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .btn-default {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #4f4f4f;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-default svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-color);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-default .chev {
+            width: 14px;
+            height: 14px;
+        }
+
+        .edit-form-group {
+            margin: 0 16px 8px 16px;
+            border-radius: 32px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .edit-form-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            position: relative;
+        }
+
+        .edit-form-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 24px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .edit-form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .edit-form-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 400;
+            opacity: 0.75;
+        }
+
+        .edit-hint-text {
+            margin: 0 24px 16px 24px;
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .welcome-title {
+            padding: 8px 24px 8px 24px;
+            color: var(--text-color);
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .welcome-card {
+            margin: 0 16px 8px 16px;
+            border-radius: 32px;
+            background: var(--card-bg);
+            border: 1px solid #4f4f4f;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .welcome-preview {
+            margin: 16px;
+            border-radius: 24px;
+            background: var(--preview-bg);
+            border: 1px dashed var(--blue-accent);
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .welcome-preview .cam-icon {
+            width: 40px;
+            height: 40px;
+            stroke: var(--blue-accent);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .preview-title {
+            color: var(--text-color);
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 16px 16px 16px;
+        }
+
+        .btn-welcome-pic {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto 16px auto;
+            padding: 10px 20px;
+            background: var(--card-bg-secondary);
+            color: var(--text-color);
+            border: none;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-welcome-pic svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-color);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .welcome-input {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            border-top: 1px solid var(--separator);
+        }
+
+        .welcome-input input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .welcome-input input::placeholder {
+            color: var(--input-placeholder);
+        }
+
+        .btn-update {
+            width: 100%;
+            padding: 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-update:active {
+            opacity: 0.85;
+        }
+
+        /* ================= ЭКРАН 5: COMMANDS ================= */
+        .icon-section {
+            display: flex;
+            justify-content: center;
+            padding: 20px 16px 0 16px;
+            flex-shrink: 0;
+        }
+
+        .icon-section svg {
+            width: 60px;
+            height: 60px;
+        }
+
+        .page-title {
+            text-align: center;
+            color: var(--text-color);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 16px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .description {
+            color: var(--secondary-text);
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 24px 20px 24px;
+            flex-shrink: 0;
+        }
+
+        .description a,
+        .footer-text a {
+            color: var(--blue-accent);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .description a:hover,
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .arrow {
+            font-size: 14px;
+            margin-left: 2px;
+            display: inline-block;
+            transform: translateY(1px);
+        }
+
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 24px 8px 24px;
+            flex-shrink: 0;
+        }
+
+        .list-header .list-title {
+            color: var(--text-color);
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .list-header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-default-sm {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #4f4f4f;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-default-sm svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-color);
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-default-sm .chev {
+            width: 14px;
+            height: 14px;
+        }
+
+        .edit-link {
+            color: var(--link-blue);
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .commands-section {
+            margin: 0 16px 16px 16px;
+            border-radius: 24px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .add-command-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            background: var(--card-bg);
+            position: relative;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .add-command-row::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .add-command-label {
+            color: var(--link-blue);
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .command-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .command-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .command-text {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .command-name {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            word-break: break-word;
+        }
+
+        .command-desc {
+            color: var(--secondary-text);
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .command-arrow {
+            margin-left: auto;
+            width: 22px;
+            height: 22px;
+            color: var(--tertiary-text);
+            flex-shrink: 0;
+        }
+
+        .footer-text {
+            color: var(--secondary-text);
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        /* ================= ЭКРАН 6: NEW COMMAND ================= */
+        .new-command-title {
+            padding: 20px 24px 8px 24px;
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .new-form-group {
+            margin: 12px 16px 8px 16px;
+            border-radius: 32px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .new-form-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            position: relative;
+        }
+
+        .new-form-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 24px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .new-form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .new-form-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 400;
+        }
+
+        .cmd-input-group {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .cmd-prefix {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .cmd-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .cmd-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 400;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 24px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .toggle-label {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+            flex: 1;
+        }
+
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 32px;
+            border-radius: 999px;
+            background: var(--toggle-off);
+            transition: background 0.25s;
+            flex-shrink: 0;
+        }
+
+        .toggle.on {
+            background: var(--toggle-on);
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.25s;
+        }
+
+        .toggle.on::after {
+            transform: translateX(20px);
+        }
+
+        .btn-add-command {
+            width: 100%;
+            padding: 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-add-command:active {
+            opacity: 0.85;
+        }
+
+        /* ================= ЭКРАН 7: MENU BUTTON ================= */
+        .menu-page-title {
+            padding: 20px 24px 8px 24px;
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .menu-bordered-section {
+            margin: 12px 16px 8px 16px;
+            border-radius: 28px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .menu-form-row {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+        }
+
+        .menu-form-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .menu-form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .menu-form-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 400;
+        }
+
+        .open-row {
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        .open-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .open-inner {
+            background: var(--card-bg-secondary);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-open {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 22px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-open svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .menu-hint-text {
+            margin: 0 20px 20px 20px;
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .menu-section-title {
+            padding: 8px 24px 8px 24px;
+            color: var(--text-color);
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .launch-mode-card {
+            margin: 0 16px 16px 16px;
+            border-radius: 28px;
+            background: var(--card-bg);
+            border: 1px solid #4f4f4f;
+            padding: 20px 12px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .mode-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .phone-frame {
+            width: 60px;
+            height: 100px;
+            border-radius: 10px;
+            border: 2px solid var(--separator);
+            position: relative;
+            overflow: hidden;
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+
+        .mode-item.compact .phone-frame::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            height: 55%;
+            background: var(--separator);
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .mode-item.compact.active .phone-frame {
+            border-color: var(--blue-accent);
+        }
+
+        .mode-item.compact.active .phone-frame::after {
+            background: var(--blue-accent);
+        }
+
+        .mode-item.fullsize .phone-frame::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            right: 3px;
+            top: 13px;
+            bottom: 3px;
+            background: var(--separator);
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .mode-item.fullsize.active .phone-frame {
+            border-color: var(--blue-accent);
+        }
+
+        .mode-item.fullsize.active .phone-frame::after {
+            background: var(--blue-accent);
+        }
+
+        .mode-item.fullscreen .phone-frame {
+            background: var(--separator);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .mode-item.fullscreen.active .phone-frame {
+            border-color: var(--blue-accent);
+            background: var(--blue-accent);
+        }
+
+        .mode-label {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--secondary-text);
+            padding: 4px 12px;
+            border-radius: 12px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .mode-item.active .mode-label {
+            background: var(--blue-accent);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 28px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-save:active {
+            opacity: 0.85;
+        }
+
+        /* ================= ЭКРАН 8: TRANSFER ================= */
+        .transfer-icon-section {
+            display: flex;
+            justify-content: center;
+            padding: 32px 16px 0 16px;
+            flex-shrink: 0;
+        }
+
+        .transfer-icon-section svg {
+            width: 64px;
+            height: 64px;
+            stroke: var(--blue-accent);
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .transfer-title {
+            text-align: center;
+            color: var(--text-color);
+            font-size: 24px;
+            font-weight: 700;
+            padding: 20px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .transfer-description {
+            color: var(--secondary-text);
+            font-size: 15px;
+            text-align: center;
+            line-height: 1.5;
+            padding: 0 32px 24px 32px;
+            flex-shrink: 0;
+        }
+
+        .transfer-section-title {
+            padding: 8px 24px 8px 24px;
+            color: var(--text-color);
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .transfer-search-card {
+            margin: 0 16px 16px 16px;
+            border-radius: 999px;
+            background: var(--card-bg);
+            border: 1px solid #4f4f4f;
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .transfer-search-card svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--secondary-text);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        .transfer-search-card input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+            min-width: 0;
+        }
+
+        .transfer-search-card input::placeholder {
+            color: var(--input-placeholder);
+        }
+
+        .transfer-hint-text {
+            margin: 0 24px 16px 24px;
+            color: var(--secondary-text);
+            font-size: 14px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .btn-continue {
+            width: 100%;
+            padding: 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-continue:active {
+            opacity: 0.85;
+        }
+
+        /* ================= ЭКРАН 9: BOT SYSTEM ================= */
+        .bs-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            position: relative;
+        }
+
+        .bs-top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .bs-nav-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--separator);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            outline: none;
+            transition: background 0.15s;
+        }
+
+        .bs-nav-circle:active {
+            background: var(--card-bg-secondary);
+        }
+
+        .bs-nav-circle svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--text-color);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bs-nav-circle svg.card-icon {
+            width: 22px;
+            height: 22px;
+            stroke: none;
+        }
+
+        .bs-nav-circle svg.card-icon path {
+            fill: var(--text-color);
+        }
+
+        .bs-nav-pill {
+            flex: 0 1 auto;
+            height: 48px;
+            border-radius: 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--separator);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 24px;
+            min-width: 0;
+            max-width: 60%;
+        }
+
+        .bs-nav-pill-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .bs-nav-pill-subtitle {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--secondary-text);
+            line-height: 1.1;
+            margin-top: 1px;
+        }
+
+        .bs-sheet-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 90;
+            pointer-events: none;
+        }
+
+        .bs-sheet-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .bs-footer-stack {
+            position: relative;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .bs-bottom-sheet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 100%;
+            max-height: 60vh;
+            background: var(--bg-color);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            transform: translateY(100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.42s cubic-bezier(0.32, 0.72, 0, 1),
+                        opacity 0.25s ease, visibility 0.42s;
+            z-index: 95;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-top: 1px solid #3d3d3d;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        .bs-bottom-sheet.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .bs-sheet-handle {
+            width: 36px;
+            height: 5px;
+            background: #5a5a5a;
+            border-radius: 3px;
+            margin: 10px auto 4px auto;
+            flex-shrink: 0;
+        }
+
+        .bs-sheet-footer-bar {
+            position: relative;
+            padding: 8px 16px 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .bs-btn-close-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--button-blue);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .bs-btn-close-menu svg {
+            width: 16px;
+            height: 16px;
+            stroke: #FFFFFF;
+            fill: none;
+            stroke-width: 2.4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bs-commands-list-sheet {
+            overflow-y: auto;
+            max-height: 100%;
+            padding-bottom: 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .bs-commands-list-sheet::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bs-command-sheet-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .bs-command-sheet-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bs-command-sheet-item:active {
+            background: var(--card-bg-secondary);
+        }
+
+        .bs-command-sheet-name {
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .bs-command-sheet-code {
+            color: var(--secondary-text);
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .bs-footer {
+            position: relative;
+            padding: 12px 16px 16px 16px;
+            background: var(--bg-color);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bs-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bs-btn-circle {
+            width: 56px;
+            height: 56px;
+            padding: 0;
+            background: var(--button-blue);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+                        background 0.2s ease;
+        }
+
+        .bs-btn-circle.active {
+            transform: rotate(90deg);
+            background: var(--card-bg-secondary);
+        }
+
+        .bs-btn-circle svg.menu-icon {
+            fill: none;
+            width: 26px;
+            height: 26px;
+        }
+
+        .bs-btn-circle svg.menu-icon path {
+            stroke: #FFFFFF;
+            stroke-width: 2;
+            stroke-linecap: round;
+            transition: stroke 0.2s;
+        }
+
+        .bs-btn-circle.active svg.menu-icon path {
+            stroke: var(--text-color);
+        }
+
+        .bs-btn-attach {
+            width: 56px;
+            height: 56px;
+            padding: 0;
+            background: var(--card-bg);
+            border: 1px solid #4f4f4f;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bs-btn-attach svg {
+            fill: none;
+            width: 24px;
+            height: 24px;
+        }
+
+        .bs-btn-attach svg path {
+            stroke: var(--secondary-text);
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bs-search-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        .bs-search-input {
+            width: 100%;
+            height: 56px;
+            background: var(--card-bg);
+            border: 1px solid #4f4f4f;
+            border-radius: 28px;
+            padding: 0 60px 0 20px;
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .bs-search-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 500;
+        }
+
+        .bs-send-btn {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--button-blue);
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .bs-send-btn svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+            fill: #FFFFFF;
+            margin-left: -2px;
+        }
+
+        .bs-search-wrapper.filled .bs-send-btn {
+            display: flex;
+        }
+
+        .bs-archive-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            will-change: transform;
+        }
+
+        .bs-archive-screen.open {
+            transform: translateX(0);
+        }
+
+        .bs-archive-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 16px 8px 16px;
+            flex-shrink: 0;
+        }
+
+        .bs-tokens-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 5px;
+            padding: 16px 0;
+            overflow: hidden;
+        }
+
+        .bs-bordered-section {
+            margin: 0 16px;
+            border-radius: 28px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            padding: 16px 20px;
+            flex-shrink: 1;
+        }
+
+        .bs-token-field {
+            display: flex;
+            align-items: center;
+            background: var(--bg-color);
+            border-radius: 999px;
+            padding: 12px 20px;
+            margin-bottom: 12px;
+            border: 1px solid #4f4f4f;
+            min-height: 44px;
+            overflow: hidden;
+        }
+
+        .bs-key-icon {
+            width: 20px;
+            height: 20px;
+            color: var(--tertiary-text);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        .bs-token-value {
+            color: var(--secondary-text);
+            font-size: 14px;
+            font-family: monospace;
+            letter-spacing: 1.5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: clip;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bs-token-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .bs-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+
+        .bs-btn:active {
+            opacity: 0.85;
+            transform: scale(0.97);
+        }
+
+        .bs-btn-copy {
+            background: var(--button-blue);
+        }
+
+        .bs-btn-revoke {
+            background: var(--button-red);
+        }
+
+        .bs-archive-footer {
+            flex-shrink: 0;
+            padding: 12px 16px 16px 16px;
+            background: var(--bg-color);
+            position: relative;
+            z-index: 10;
+        }
+
+        .bs-archive-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bs-btn-save {
+            width: 100%;
+            padding: 16px;
+            background: var(--button-blue);
+            color: #fff;
+            border: none;
+            border-radius: 28px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .bs-toast {
+            position: absolute;
+            left: 50%;
+            bottom: 100px;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 300;
+            white-space: nowrap;
+        }
+
+        .bs-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ================= ЭКРАН 10: BOT SETTINGS ================= */
+        .bt-content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 20px 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .bt-content-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bt-section {
+            margin-bottom: 24px;
+        }
+
+        .bt-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            margin-top: 8px;
+            padding-left: 4px;
+        }
+
+        .bt-card {
+            background: var(--card-bg);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid #4f4f4f;
+        }
+
+        .bt-item {
+            padding: 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bt-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 16px;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bt-item-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .bt-item-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+            line-height: 1.3;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .bt-item-counter {
+            font-size: 14px;
+            color: var(--secondary-text);
+            font-weight: 400;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 1;
+        }
+
+        .bt-item-counter .bt-chev {
+            width: 12px;
+            height: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bt-item-counter .bt-chev svg {
+            display: block;
+            width: 12px;
+            height: 12px;
+            stroke: var(--secondary-text);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .bt-item-counter .bt-chev-up {
+            display: none;
+        }
+
+        .bt-item-counter .bt-chev-down {
+            display: inline-flex;
+        }
+
+        .bt-item.expanded .bt-item-counter .bt-chev-up {
+            display: inline-flex;
+        }
+
+        .bt-item.expanded .bt-item-counter .bt-chev-down {
+            display: none;
+        }
+
+        .bt-rights-list {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+            margin: 0 -16px -16px -16px;
+            border-top: 1px solid transparent;
+        }
+
+        .bt-item.expanded .bt-rights-list {
+            grid-template-rows: 1fr;
+            border-top-color: var(--separator);
+        }
+
+        .bt-rights-list > .bt-rights-inner {
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .bt-right-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .bt-right-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 56px;
+            right: 16px;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bt-right-item:active {
+            background: var(--card-bg-secondary);
+        }
+
+        .bt-right-circle {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1.5px solid #6a6a6a;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .bt-right-circle::after {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 11px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg) translate(-1px, -2px);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .bt-right-item.selected .bt-right-circle {
+            background: var(--button-blue);
+            border-color: var(--button-blue);
+        }
+
+        .bt-right-item.selected .bt-right-circle::after {
+            opacity: 1;
+        }
+
+        .bt-right-label {
+            font-size: 15px;
+            color: var(--text-color);
+            font-weight: 400;
+        }
+
+        .bt-note {
+            font-size: 14px;
+            color: var(--secondary-text);
+            line-height: 1.45;
+            padding: 0 4px;
+            margin-top: 16px;
+        }
+
+        .bt-note .read-more {
+            color: var(--button-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .bt-switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+            flex-shrink: 0;
+        }
+
+        .bt-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .bt-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--switch-off);
+            transition: .3s;
+            border-radius: 31px;
+        }
+
+        .bt-slider:before {
+            position: absolute;
+            content: "";
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--switch-knob);
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .bt-switch input:checked + .bt-slider {
+            background-color: var(--switch-on);
+        }
+
+        .bt-switch input:checked + .bt-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* ================= ЭКРАН 11: BOT LOGS ================= */
+        .bl-content-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 20px 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .bl-content-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bl-bordered-section {
+            margin: 35px 16px 8px 16px;
+            border-radius: 28px;
+            background: var(--card-bg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #4f4f4f;
+            flex-shrink: 0;
+        }
+
+        .bl-form-row {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+        }
+
+        .bl-form-row:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 16px;
+            right: 0;
+            height: 0.5px;
+            background-color: var(--separator);
+        }
+
+        .bl-form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .bl-form-input::placeholder {
+            color: var(--input-placeholder);
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="tg-panel">
+
+        <!-- ================= ЭКРАН 1: СПИСОК БОТОВ ================= -->
+        <div class="screen active scrollable" id="screenList">
+            <div class="botfather-row">
+                <div class="bf-avatar">
+                    <img src="BotConstructor.PNG" alt="BotConstructor">
+                </div>
+                <div class="bf-info">
+                    <div class="bf-name">
+                        <h2>BotConstructor</h2>
+                    </div>
+                    <div class="bf-description">
+                        BotConstructor is a bot that acts as an autonomous agent for creating Telegram bots based on your description.
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-row">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                    <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="search-label">Search</span>
+            </div>
+
+            <div class="mybots-header">
+                <span>My bots</span>
+            </div>
+
+            <div class="bordered-section">
+                <button class="create-bot-row" type="button" id="createBotBtn">
+                    <div class="plus-circle">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <span class="new-bot-btn">Create a New Bot</span>
+                </button>
+
+                <div class="bots-scroll">
+                    <div class="bots-list" id="botsList"></div>
+                </div>
+            </div>
+
+            <div class="panel-footer"></div>
+        </div>
+
+        <!-- ================= ЭКРАН 2: СОЗДАНИЕ БОТА ================= -->
+        <div class="screen scrollable" id="screenCreate">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromCreate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="botfather-row">
+                <div class="bf-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="bf-info">
+                    <div class="bf-name"><h2>New bot</h2></div>
+                    <div class="bf-description">Enter a name, description and username to create a new bot.</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-row">
+                    <input id="botName" class="form-input" type="text" placeholder="Bot Name">
+                </div>
+                <div class="form-row">
+                    <input id="botAbout" class="form-input" type="text" placeholder="About (Optional)">
+                </div>
+            </div>
+
+            <div class="username-group">
+                <span class="username-prefix">t.me/</span>
+                <input id="botUsername" class="username-input" type="text" placeholder="username_bot">
+            </div>
+
+            <div class="hint-text">
+                Choose a username for your bot. It must end in <code>`bot`</code>. Like this, for example: TetrisBot or tetris_bot.
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer">
+                <button class="btn-create" type="button" id="submitBotBtn">Create Bot</button>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 3: НАСТРОЙКИ ================= -->
+        <div class="screen scrollable" id="screenSettings">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromSettings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="botfather-row">
+                <div class="bf-avatar color-avatar" id="settingsAvatar">B</div>
+                <div class="bf-info">
+                    <div class="bf-name"><h2 id="settingsName">Bloomarket</h2></div>
+                    <div class="bf-description" id="settingsUsername">@BloomarketBot</div>
+                </div>
+            </div>
+
+            <div class="token-card">
+                <div class="token-field">
+                    <svg class="key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                    </svg>
+                    <span class="token-value">••••••••••••••••••••••••••••••••</span>
+                </div>
+                <div class="token-actions">
+                    <button class="btn btn-copy">Copy</button>
+                    <button class="btn btn-revoke">Revoke</button>
+                </div>
+            </div>
+
+            <div class="description-block">
+                <p>Access the API using this token. Keep your token secure and store it safely, anyone can use it to control your bot.</p>
+                <a class="read-more">
+                    Read more
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="section-title">Settings</div>
+
+            <div class="settings-section">
+                <div class="setting-item" id="editInfoBtn">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Edit Info</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div class="setting-item" id="commandsBtn">
+                    <div class="setting-icon">
+                        <svg class="custom-icon" xmlns="http://www.w3.org/2000/svg" viewBox="30 15 90 90" fill="none">
+                            <rect x="45" y="30" width="60" height="60" rx="16" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="80" y1="46" x2="70" y2="74" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Commands</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div class="setting-item" id="miniAppsBtn">
+                    <div class="setting-icon">
+                        <svg class="custom-icon" xmlns="http://www.w3.org/2000/svg" viewBox="35 170 80 80" fill="none">
+                            <rect x="45" y="180" width="24" height="24" rx="8" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="81" y="180" width="24" height="24" rx="8" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="45" y="216" width="24" height="24" rx="8" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <rect x="81" y="216" width="24" height="24" rx="8" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Mini Apps</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div class="setting-item" id="botSettingsBtn">
+                    <div class="setting-icon">
+                        <svg class="custom-icon" xmlns="http://www.w3.org/2000/svg" viewBox="15 20 90 90" fill="none">
+                            <line x1="25.5" y1="60" x2="25.5" y2="75" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="94.5" y1="60" x2="94.5" y2="75" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M 60 28 C 41 28, 34 41, 34 55 L 34 82 C 34 92, 42 98, 51 98 L 69 98 C 78 98, 86 92, 86 82 L 86 55 C 86 41, 79 28, 60 28 Z" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="34.5" y1="64" x2="85.5" y2="64" stroke="#f5f5f5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="49" cy="50" r="3" fill="#f5f5f5" stroke="none"/>
+                            <circle cx="71" cy="50" r="3" fill="#f5f5f5" stroke="none"/>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Bot Settings</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="section-title">System</div>
+
+            <div class="settings-section">
+                <div class="setting-item" id="botLogsBtn">
+                    <div class="setting-icon">
+                        <svg class="fill-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M12.25 2.83422C11.7896 2.75598 11.162 2.75005 10.0298 2.75005C8.11311 2.75005 6.75075 2.75163 5.71785 2.88987C4.70596 3.0253 4.12453 3.27933 3.7019 3.70195C3.27869 4.12516 3.02502 4.70481 2.88976 5.7109C2.75159 6.73856 2.75 8.09323 2.75 10.0001V14.0001C2.75 15.9069 2.75159 17.2615 2.88976 18.2892C3.02502 19.2953 3.27869 19.8749 3.7019 20.2981C4.12511 20.7214 4.70476 20.975 5.71085 21.1103C6.73851 21.2485 8.09318 21.2501 10 21.2501H14C15.9068 21.2501 17.2615 21.2485 18.2892 21.1103C19.2952 20.975 19.8749 20.7214 20.2981 20.2981C20.7213 19.8749 20.975 19.2953 21.1102 18.2892C21.2484 17.2615 21.25 15.9069 21.25 14.0001V13.5629C21.25 12.0269 21.2392 11.2988 21.0762 10.7501H17.9463C16.8135 10.7501 15.8877 10.7501 15.1569 10.6518C14.3929 10.5491 13.7306 10.3268 13.2019 9.79815C12.6732 9.26945 12.4509 8.60712 12.3482 7.84317C12.25 7.1123 12.25 6.18657 12.25 5.05374V2.83422ZM13.75 3.6095V5.00005C13.75 6.19976 13.7516 7.0241 13.8348 7.64329C13.9152 8.24091 14.059 8.53395 14.2626 8.73749C14.4661 8.94103 14.7591 9.08486 15.3568 9.16521C15.976 9.24846 16.8003 9.25005 18 9.25005H20.0195C19.723 8.9625 19.3432 8.61797 18.85 8.17407L14.8912 4.61117C14.4058 4.17433 14.0446 3.85187 13.75 3.6095ZM10.1755 1.25002C11.5601 1.24965 12.4546 1.24942 13.2779 1.56535C14.1012 1.88129 14.7632 2.47735 15.7873 3.39955C15.8226 3.43139 15.8584 3.46361 15.8947 3.49623L19.8534 7.05912C19.8956 7.09705 19.9372 7.1345 19.9783 7.17149C21.162 8.23614 21.9274 8.92458 22.3391 9.84902C22.7508 10.7734 22.7505 11.8029 22.75 13.3949C22.75 13.4502 22.75 13.5062 22.75 13.5629V14.0565C22.75 15.8942 22.75 17.3499 22.5969 18.4891C22.4392 19.6615 22.1071 20.6104 21.3588 21.3588C20.6104 22.1072 19.6614 22.4393 18.489 22.5969C17.3498 22.7501 15.8942 22.7501 14.0564 22.7501H9.94359C8.10583 22.7501 6.65019 22.7501 5.51098 22.5969C4.33856 22.4393 3.38961 22.1072 2.64124 21.3588C1.89288 20.6104 1.56076 19.6615 1.40314 18.4891C1.24997 17.3499 1.24998 15.8942 1.25 14.0565V9.94363C1.24998 8.10587 1.24997 6.65024 1.40314 5.51103C1.56076 4.33861 1.89288 3.38966 2.64124 2.64129C3.39019 1.89235 4.34232 1.56059 5.51887 1.40313C6.66283 1.25002 8.1257 1.25003 9.97352 1.25005L10.0298 1.25005C10.0789 1.25005 10.1275 1.25004 10.1755 1.25002Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Bot Logs</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div class="setting-item" id="botSystemBtn">
+                    <div class="setting-icon">
+                        <svg class="fill-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+                            <path d="M14.0184 7.36446C14.1256 6.96436 13.8882 6.55311 13.4881 6.4459C13.088 6.3387 12.6767 6.57614 12.5695 6.97623L9.98131 16.6355C9.8741 17.0356 10.1115 17.4468 10.5116 17.5541C10.9117 17.6613 11.323 17.4238 11.4302 17.0237L14.0184 7.36446Z" fill="currentColor"></path>
+                            <path d="M16.0303 8.46967C15.7374 8.17678 15.2626 8.17678 14.9697 8.46967C14.6768 8.76256 14.6768 9.23744 14.9697 9.53033L15.1412 9.7019C15.8229 10.3836 16.2797 10.8426 16.5753 11.2301C16.8577 11.6002 16.9216 11.8157 16.9216 12C16.9216 12.1843 16.8577 12.3998 16.5753 12.7699C16.2797 13.1574 15.8229 13.6164 15.1412 14.2981L14.9697 14.4697C14.6768 14.7626 14.6768 15.2374 14.9697 15.5303C15.2626 15.8232 15.7374 15.8232 16.0303 15.5303L16.2387 15.322C16.874 14.6867 17.4038 14.1569 17.7678 13.6798C18.1521 13.1762 18.4216 12.6441 18.4216 12C18.4216 11.3559 18.1521 10.8238 17.7678 10.3202C17.4038 9.84307 16.874 9.31331 16.2387 8.67801L16.0303 8.46967Z" fill="currentColor"></path>
+                            <path d="M7.96986 8.46967C8.26275 8.17678 8.73762 8.17678 9.03052 8.46967C9.32341 8.76256 9.32341 9.23744 9.03052 9.53033L8.85894 9.7019C8.17729 10.3836 7.72052 10.8426 7.42488 11.2301C7.14245 11.6002 7.07861 11.8157 7.07861 12C7.07861 12.1843 7.14245 12.3998 7.42488 12.7699C7.72052 13.1574 8.17729 13.6164 8.85894 14.2981L9.03052 14.4697C9.32341 14.7626 9.32341 15.2374 9.03052 15.5303C8.73762 15.8232 8.26275 15.8232 7.96986 15.5303L7.76151 15.322C7.12618 14.6867 6.59637 14.1569 6.23235 13.6798C5.84811 13.1762 5.57861 12.6441 5.57861 12C5.57861 11.3559 5.84811 10.8238 6.23235 10.3202C6.59637 9.84307 7.12617 9.31332 7.7615 8.67802L7.96986 8.46967Z" fill="currentColor"></path>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M11.9426 1.25C9.63423 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63423 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25H11.9426ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62178 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62178 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62178 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62178 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <span class="setting-label">Bot System</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="section-title">Actions</div>
+
+            <div class="settings-section">
+                <div class="setting-item" id="transferOwnershipBtn">
+                    <div class="setting-icon link-blue">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 11l-3-3m0 0l-3 3m3-3v8"></path>
+                        </svg>
+                    </div>
+                    <span class="setting-label link-blue">Transfer Ownership</span>
+                    <svg class="setting-arrow link-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+
+                <div class="setting-item" id="deleteBotBtn">
+                    <div class="setting-icon danger-red">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                            <path d="M10 11v6M14 11v6"></path>
+                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </div>
+                    <span class="setting-label danger-red">Delete Bot</span>
+                    <svg class="setting-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="panel-footer"></div>
+        </div>
+
+        <!-- ================= ЭКРАН 4: EDIT BOT ================= -->
+        <div class="screen scrollable" id="screenEdit">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromEdit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="avatar-section">
+                <div class="avatar-circle" id="editAvatar">B</div>
+                <div class="btn-set-photo">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <span>Set New Photo</span>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="title">Info</span>
+                <div class="btn-default">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <span>Default</span>
+                    <svg class="chev" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="edit-form-group">
+                <div class="edit-form-row">
+                    <input class="edit-form-input" type="text" id="editBotName" placeholder="Bot Name">
+                </div>
+                <div class="edit-form-row">
+                    <input class="edit-form-input" type="text" id="editBotAbout" placeholder="About (Optional)">
+                </div>
+            </div>
+            <div class="edit-hint-text">
+                People will see this text on the bot's profile page.
+            </div>
+
+            <div class="welcome-title">Welcome message</div>
+
+            <div class="welcome-card">
+                <div class="welcome-preview">
+                    <svg class="cam-icon" viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="preview-title">What can this bot do?</div>
+                <button class="btn-welcome-pic" type="button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <span>Set Welcome Picture</span>
+                </button>
+                <div class="welcome-input">
+                    <input type="text" id="editBotWelcome" placeholder="Enter bot description">
+                </div>
+            </div>
+
+            <div class="edit-hint-text">
+                Upload a photo for the bot's start page, 640x360 pixels. You can also use a GIF animation, 320x180, 640x360 or 960x540 pixels.
+            </div>
+            <div class="edit-hint-text">
+                People will see the description and image when they open a chat with your bot, in a block titled 'What can this bot do?'.
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer">
+                <button class="btn-update" type="button" id="updateBotBtn">Update</button>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 5: COMMANDS ================= -->
+        <div class="screen scrollable" id="screenCommands">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromCommands">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="icon-section">
+                <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="50" height="50" rx="14" stroke="#4a8fe0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="36" y1="17" x2="24" y2="43" stroke="#4a8fe0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div class="page-title">Commands</div>
+
+            <p class="description">
+                A command is a simple /keyword that tells the bot what to do.
+                <a href="#">Read more <span class="arrow">›</span></a>
+            </p>
+
+            <div class="list-header">
+                <span class="list-title">List</span>
+                <div class="list-header-right">
+                    <div class="btn-default-sm">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        <span>Default</span>
+                        <svg class="chev" viewBox="0 0 24 24">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <span class="edit-link">Edit</span>
+                </div>
+            </div>
+
+            <div class="commands-section">
+                <button class="add-command-row" type="button" id="addCommandBtn">
+                    <span class="add-command-label">Add a Command</span>
+                </button>
+                <div id="commandsList"></div>
+            </div>
+
+            <p class="footer-text">
+                Explore more functionality with the API.
+                <a href="#">Read More <span class="arrow">›</span></a>
+            </p>
+
+            <div class="spacer"></div>
+        </div>
+
+        <!-- ================= ЭКРАН 6: NEW COMMAND ================= -->
+        <div class="screen scrollable" id="screenNewCommand">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromNewCommand">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="new-command-title">New command</div>
+
+            <div class="new-form-group">
+                <div class="new-form-row">
+                    <div class="cmd-input-group">
+                        <span class="cmd-prefix">/</span>
+                        <input class="cmd-input" type="text" id="cmdName" placeholder="command">
+                    </div>
+                </div>
+                <div class="new-form-row">
+                    <input class="new-form-input" type="text" id="cmdDesc" placeholder="Description">
+                </div>
+            </div>
+
+            <div class="section-title">Scope</div>
+
+            <div class="new-form-group">
+                <div class="toggle-row">
+                    <span class="toggle-label">Direct Messages</span>
+                    <div class="toggle on"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Group Chats</span>
+                    <div class="toggle on"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Group Administrators</span>
+                    <div class="toggle on"></div>
+                </div>
+            </div>
+
+            <div class="hint-text">
+                Choose who sees this command. You can set up more sophisticated logic through API.
+                <a href="#">Read More <span class="arrow">›</span></a>
+            </div>
+
+            <div class="new-form-group">
+                <div class="toggle-row">
+                    <span class="toggle-label">Ephemeral Command</span>
+                    <div class="toggle"></div>
+                </div>
+            </div>
+
+            <div class="hint-text">
+                When users invoke this command in a group, the command message is hidden from other participants — only the sender and your bot see it.
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer">
+                <button class="btn-add-command" type="button" id="submitCommandBtn">Add</button>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 7: MENU BUTTON ================= -->
+        <div class="screen scrollable" id="screenMenuButton">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromMenuButton">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="menu-page-title">Menu Button</div>
+
+            <div class="menu-bordered-section">
+                <div class="open-row">
+                    <div class="open-inner">
+                        <button class="btn-open" type="button">
+                            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
+                                <rect x="1.5" y="1.5" width="13" height="13" rx="2.5"
+                                      stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3.5 1.5 H12.5 A2.5 2.5 0 0 1 15 4 V4.7 H1 V4 A2.5 2.5 0 0 1 3.5 1.5 Z"
+                                      fill="currentColor"/>
+                            </svg>
+                            <span>Open</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="menu-form-row">
+                    <input class="menu-form-input" type="text" id="menuUrl" placeholder="Enter URL">
+                </div>
+
+                <div class="menu-form-row">
+                    <input class="menu-form-input" type="text" id="menuTitle" placeholder="Enter Title">
+                </div>
+            </div>
+
+            <div class="menu-hint-text">
+                Mini Apps can be launched from a customized menu button. This simply offers a quicker way to access the app.
+            </div>
+
+            <div class="menu-section-title">Launch Mode</div>
+
+            <div class="launch-mode-card">
+                <div class="mode-item active compact" data-mode="compact">
+                    <div class="phone-frame"></div>
+                    <div class="mode-label">Compact</div>
+                </div>
+                <div class="mode-item fullsize" data-mode="fullsize">
+                    <div class="phone-frame"></div>
+                    <div class="mode-label">Fullsize</div>
+                </div>
+                <div class="mode-item fullscreen" data-mode="fullscreen">
+                    <div class="phone-frame"></div>
+                    <div class="mode-label">Fullscreen</div>
+                </div>
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer">
+                <button class="btn-save" type="button" id="saveMenuBtn">Save</button>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 8: TRANSFER OWNERSHIP ================= -->
+        <div class="screen scrollable" id="screenTransfer">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromTransfer">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="transfer-icon-section">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 11l-3-3m0 0l-3 3m3-3v8"></path>
+                </svg>
+            </div>
+
+            <div class="transfer-title">Transfer Ownership</div>
+
+            <div class="transfer-description">
+                You can transfer bot ownership<br>
+                to another Telegram user.
+            </div>
+
+            <div class="transfer-section-title">Choose Recipient</div>
+
+            <div class="transfer-search-card">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <path d="M16 16L21 21"></path>
+                </svg>
+                <input type="text" id="transferRecipient" placeholder="Enter Telegram username...">
+            </div>
+
+            <div class="transfer-hint-text">
+                Note: This action is irreversible — once transferred, you will no longer have access to the bot.
+            </div>
+
+            <div class="spacer"></div>
+
+            <div class="footer">
+                <button class="btn-continue" type="button" id="continueTransferBtn">Continue</button>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 9: BOT SYSTEM ================= -->
+        <div class="screen" id="screenBotSystem">
+            <div class="bs-chat">
+                <div class="bs-top-nav">
+                    <button class="bs-nav-circle" type="button" id="bsBackBtn" aria-label="Back">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                    </button>
+
+                    <div class="bs-nav-pill">
+                        <span class="bs-nav-pill-title" id="bsBotName">BotConstructor</span>
+                        <span class="bs-nav-pill-subtitle">bot</span>
+                    </div>
+
+                    <button class="bs-nav-circle" type="button" id="bsArchiveTopBtn" aria-label="Card">
+                        <svg class="card-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
+                            <g fill="currentColor">
+                                <path d="M6.75 8a.75.75 0 000 1.5h2.5a.75.75 0 000-1.5h-2.5z"/>
+                                <path fill-rule="evenodd" d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v1.5c0 .698-.409 1.3-1 1.582v6.918A2.25 2.25 0 0112.75 15h-9.5A2.25 2.25 0 011 12.75V5.832A1.75 1.75 0 010 4.25v-1.5zm13.5 10V6h-11v6.75c0 .414.336.75.75.75h9.5a.75.75 0 00.75-.75zm1-8.5a.25.25 0 01-.25.25H1.75a.25.25 0 01-.25-.25v-1.5a.25.25 0 01.25-.25h12.5a.25.25 0 01.25.25v1.5z" clip-rule="evenodd"/>
+                            </g>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="bs-sheet-backdrop" id="bsSheetBackdrop"></div>
+
+                <div class="bs-footer-stack">
+                    <div class="bs-bottom-sheet" id="bsBottomSheet">
+                        <div class="bs-sheet-handle"></div>
+                        <div class="bs-sheet-footer-bar">
+                            <button class="bs-btn-close-menu" type="button" id="bsCloseMenuBtn">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Меню
+                            </button>
+                        </div>
+
+                        <div class="bs-commands-list-sheet">
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Start Bot</span>
+                                <span class="bs-command-sheet-code">/start</span>
+                            </div>
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Manage Bot</span>
+                                <span class="bs-command-sheet-code">/managebot</span>
+                            </div>
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Bot Information</span>
+                                <span class="bs-command-sheet-code">/botinformation</span>
+                            </div>
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Read Messages</span>
+                                <span class="bs-command-sheet-code">/readmessages</span>
+                            </div>
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Reply to Messages</span>
+                                <span class="bs-command-sheet-code">/replytomessages</span>
+                            </div>
+                            <div class="bs-command-sheet-item">
+                                <span class="bs-command-sheet-name">Mark Messages as Read</span>
+                                <span class="bs-command-sheet-code">/markmessagesasread</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bs-footer">
+                        <button class="bs-btn-circle" type="button" id="bsMenuBtn" aria-label="Menu">
+                            <svg class="menu-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 6L20 6"/>
+                                <path d="M4 12L20 12"/>
+                                <path d="M4 18L20 18"/>
+                            </svg>
+                        </button>
+
+                        <button class="bs-btn-attach" type="button" aria-label="Attach">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                            </svg>
+                        </button>
+
+                        <div class="bs-search-wrapper" id="bsSearchWrapper">
+                            <input class="bs-search-input" type="text" id="bsMessageInput" placeholder="Message" autocomplete="off">
+                            <button class="bs-send-btn" type="button" aria-label="Send">
+                                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill="#FFFFFF" d="M88.723,12.142C76.419,17.238,23.661,39.091,9.084,45.047c-9.776,3.815-4.053,7.392-4.053,7.392 s8.345,2.861,15.499,5.007c7.153,2.146,10.968-0.238,10.968-0.238l33.62-22.652c11.922-8.107,9.061-1.431,6.199,1.431 c-6.199,6.2-16.452,15.975-25.036,23.844c-3.815,3.338-1.908,6.199-0.238,7.63c6.199,5.246,23.129,15.976,24.082,16.691 c5.037,3.566,14.945,8.699,16.452-2.146c0,0,5.961-37.435,5.961-37.435c1.908-12.637,3.815-24.321,4.053-27.659 C97.307,8.804,88.723,12.142,88.723,12.142z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bs-archive-screen" id="bsArchiveScreen">
+                    <div class="bs-archive-nav">
+                        <button class="bs-nav-circle" type="button" id="bsArchiveBackBtn" aria-label="Back">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18l-6-6 6-6"/>
+                            </svg>
+                        </button>
+
+                        <div class="bs-nav-pill">
+                            <span class="bs-nav-pill-title">Архив</span>
+                            <span class="bs-nav-pill-subtitle">tokens</span>
+                        </div>
+
+                        <div style="width: 48px;"></div>
+                    </div>
+
+                    <div class="bs-tokens-container">
+                        <div class="bs-bordered-section">
+                            <div class="bs-token-field">
+                                <svg class="bs-key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                                </svg>
+                                <span class="bs-token-value">••••••••••••••••••••••••••••••••</span>
+                            </div>
+                            <div class="bs-token-actions">
+                                <button class="bs-btn bs-btn-copy" type="button">Copy</button>
+                                <button class="bs-btn bs-btn-revoke" type="button">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="bs-bordered-section">
+                            <div class="bs-token-field">
+                                <svg class="bs-key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                                </svg>
+                                <span class="bs-token-value">••••••••••••••••••••••••••••••••</span>
+                            </div>
+                            <div class="bs-token-actions">
+                                <button class="bs-btn bs-btn-copy" type="button">Copy</button>
+                                <button class="bs-btn bs-btn-revoke" type="button">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="bs-bordered-section">
+                            <div class="bs-token-field">
+                                <svg class="bs-key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                                </svg>
+                                <span class="bs-token-value">••••••••••••••••••••••••••••••••</span>
+                            </div>
+                            <div class="bs-token-actions">
+                                <button class="bs-btn bs-btn-copy" type="button">Copy</button>
+                                <button class="bs-btn bs-btn-revoke" type="button">Revoke</button>
+                            </div>
+                        </div>
+
+                        <div class="bs-bordered-section">
+                            <div class="bs-token-field">
+                                <svg class="bs-key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                                </svg>
+                                <span class="bs-token-value">••••••••••••••••••••••••••••••••</span>
+                            </div>
+                            <div class="bs-token-actions">
+                                <button class="bs-btn bs-btn-copy" type="button">Copy</button>
+                                <button class="bs-btn bs-btn-revoke" type="button">Revoke</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bs-archive-footer">
+                        <button class="bs-btn-save" type="button" id="bsSaveBtn">Save</button>
+                    </div>
+                </div>
+
+                <div class="bs-toast" id="bsToast"></div>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 10: BOT SETTINGS ================= -->
+        <div class="screen scrollable" id="screenBotSettings">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromBotSettings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="bt-content-scroll">
+                <div class="bt-section">
+                    <div class="bt-header">Launch Bot</div>
+                    <div class="bt-card">
+                        <div class="bt-item">
+                            <div class="bt-item-header-row">
+                                <div class="bt-item-title">Launch the Bot</div>
+                                <label class="bt-switch">
+                                    <input type="checkbox" unchecked>
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="bt-item">
+                            <div class="bt-item-header-row">
+                                <div class="bt-item-title">Restart the Bot</div>
+                                <label class="bt-switch">
+                                    <input type="checkbox" unchecked>
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bt-note">
+                        Allows bots to natively support threaded conversations with users and stream live responses as they're generated, subject to an additional fee for Telegram Star purchases. <a href="#" class="read-more">Read more ›</a>
+                    </div>
+                </div>
+
+                <div class="bt-section">
+                    <div class="bt-header">Launch the Mini App</div>
+                    <div class="bt-card">
+                        <div class="bt-item">
+                            <div class="bt-item-header-row">
+                                <div class="bt-item-title">Launch the Bot</div>
+                                <label class="bt-switch">
+                                    <input type="checkbox" unchecked>
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="bt-item">
+                            <div class="bt-item-header-row">
+                                <div class="bt-item-title">Restart the Bot</div>
+                                <label class="bt-switch">
+                                    <input type="checkbox" unchecked>
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bt-note">
+                        Allows bots to natively support threaded conversations with users and stream live responses as they're generated, subject to an additional fee for Telegram Star purchases. <a href="#" class="read-more">Read more ›</a>
+                    </div>
+                </div>
+
+                <div class="bt-section">
+                    <div class="bt-header">Groups and Channels</div>
+                    <div class="bt-card">
+                        <div class="bt-item" id="groupRightsItem">
+                            <div class="bt-item-header-row" data-toggle-expand>
+                                <div class="bt-item-title">
+                                    Group Admin Rights
+                                    <span class="bt-item-counter" id="groupCounter">
+                                        <span class="counter-text">0/13</span>
+                                        <span class="bt-chev bt-chev-down">
+                                            <svg viewBox="0 0 12 12"><polyline points="2.5 4.5 6 8 9.5 4.5"/></svg>
+                                        </span>
+                                        <span class="bt-chev bt-chev-up">
+                                            <svg viewBox="0 0 12 12"><polyline points="2.5 7.5 6 4 9.5 7.5"/></svg>
+                                        </span>
+                                    </span>
+                                </div>
+                                <label class="bt-switch" onclick="event.stopPropagation()">
+                                    <input type="checkbox" id="groupSwitch">
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                            <div class="bt-rights-list" id="groupRightsList">
+                                <div class="bt-rights-inner">
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Change Group Info</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Delete Messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Restrict Users</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Invite New Users</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Pin Messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Add New Admins</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage Video Chats</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Promote Anonymous Admins</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage Topics</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Post stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Edit stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Delete stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage Group</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bt-item" id="channelRightsItem">
+                            <div class="bt-item-header-row" data-toggle-expand>
+                                <div class="bt-item-title">
+                                    Channel Admin Rights
+                                    <span class="bt-item-counter" id="channelCounter">
+                                        <span class="counter-text">0/13</span>
+                                        <span class="bt-chev bt-chev-down">
+                                            <svg viewBox="0 0 12 12"><polyline points="2.5 4.5 6 8 9.5 4.5"/></svg>
+                                        </span>
+                                        <span class="bt-chev bt-chev-up">
+                                            <svg viewBox="0 0 12 12"><polyline points="2.5 7.5 6 4 9.5 7.5"/></svg>
+                                        </span>
+                                    </span>
+                                </div>
+                                <label class="bt-switch" onclick="event.stopPropagation()">
+                                    <input type="checkbox" id="channelSwitch">
+                                    <span class="bt-slider"></span>
+                                </label>
+                            </div>
+                            <div class="bt-rights-list" id="channelRightsList">
+                                <div class="bt-rights-inner">
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Change Channel Info</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Post Messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Edit Messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Delete Messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Restrict Users</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Add New Admins</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Invite New Users</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage Live Streams</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage direct messages</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Post stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Edit stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Delete stories</div>
+                                    </div>
+                                    <div class="bt-right-item" data-right>
+                                        <div class="bt-right-circle"></div>
+                                        <div class="bt-right-label">Manage Channel</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bt-note">
+                        You can choose which rights the bot will request by default when added as a group/channel admin.
+                    </div>
+                    <div class="bt-note">
+                        If the bot doesn't support managing groups or channels, disable the group or channel switches. <a href="#" class="read-more">Read more ›</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ЭКРАН 11: BOT LOGS ================= -->
+        <div class="screen scrollable" id="screenBotLogs">
+            <div class="back-header">
+                <button class="back-btn" type="button" id="backFromBotLogs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    Back
+                </button>
+            </div>
+
+            <div class="bl-bordered-section">
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 1">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 2">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 3">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 4">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 5">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 6">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 7">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 8">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 9">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 10">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 11">
+                </div>
+                <div class="bl-form-row">
+                    <input class="bl-form-input" type="text" placeholder="Log 12">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ================== ХРАНИЛИЩЕ ==================
+        const STORAGE_KEY = 'botconstructor_bots';
+
+        function loadBots() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveBots(bots) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(bots));
+            } catch (e) {}
+        }
+
+        // ================== SVG ==================
+        const BOT_ICON_SVG = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 130" width="100%" height="100%">
+                <g fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="25.5" y1="60" x2="25.5" y2="75" />
+                    <line x1="94.5" y1="60" x2="94.5" y2="75" />
+                    <path d="M 60 28 C 41 28, 34 41, 34 55 L 34 82 C 34 92, 42 98, 51 98 L 69 98 C 78 98, 86 92, 86 82 L 86 55 C 86 41, 79 28, 60 28 Z" />
+                    <line x1="34.5" y1="64" x2="85.5" y2="64" />
+                    <circle cx="49" cy="50" r="3.8" fill="#FFFFFF" stroke="none" />
+                    <circle cx="71" cy="50" r="3.8" fill="#FFFFFF" stroke="none" />
+                </g>
+            </svg>
+        `;
+
+        const ARROW_SVG = `
+            <svg class="bot-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+
+        const CMD_ARROW_SVG = `
+            <svg class="command-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+
+        // ================== ЭКРАНЫ ==================
+        const screenList = document.getElementById('screenList');
+        const screenCreate = document.getElementById('screenCreate');
+        const screenSettings = document.getElementById('screenSettings');
+        const screenEdit = document.getElementById('screenEdit');
+        const screenCommands = document.getElementById('screenCommands');
+        const screenNewCommand = document.getElementById('screenNewCommand');
+        const screenMenuButton = document.getElementById('screenMenuButton');
+        const screenTransfer = document.getElementById('screenTransfer');
+        const screenBotSystem = document.getElementById('screenBotSystem');
+        const screenBotSettings = document.getElementById('screenBotSettings');
+        const screenBotLogs = document.getElementById('screenBotLogs');
+
+        const allScreens = [
+            screenList, screenCreate, screenSettings, screenEdit,
+            screenCommands, screenNewCommand, screenMenuButton, screenTransfer,
+            screenBotSystem, screenBotSettings, screenBotLogs
+        ];
+
+        function showScreen(screen) {
+            allScreens.forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
+        }
+
+        function showList() {
+            showScreen(screenList);
+            renderBots();
+        }
+
+        function showCreate() {
+            document.getElementById('botName').value = '';
+            document.getElementById('botAbout').value = '';
+            document.getElementById('botUsername').value = '';
+            showScreen(screenCreate);
+        }
+
+        let currentBotIndex = -1;
+
+        function showSettings(index) {
+            const bots = loadBots();
+            const bot = bots[index];
+            if (!bot) return;
+            currentBotIndex = index;
+
+            document.getElementById('settingsName').textContent = bot.name;
+            document.getElementById('settingsUsername').textContent = '@' + bot.username;
+            document.getElementById('settingsAvatar').textContent = (bot.name.charAt(0) || 'B').toUpperCase();
+
+            showScreen(screenSettings);
+        }
+
+        function showEdit() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (!bot) return;
+
+            document.getElementById('editAvatar').textContent = (bot.name.charAt(0) || 'B').toUpperCase();
+            document.getElementById('editBotName').value = bot.name || '';
+            document.getElementById('editBotAbout').value = bot.about || '';
+            document.getElementById('editBotWelcome').value = bot.welcome || '';
+
+            showScreen(screenEdit);
+        }
+
+        function showCommands() {
+            renderCommands();
+            showScreen(screenCommands);
+        }
+
+        function showNewCommand() {
+            document.getElementById('cmdName').value = '';
+            document.getElementById('cmdDesc').value = '';
+            document.querySelectorAll('#screenNewCommand .toggle').forEach(t => t.classList.add('on'));
+            const eph = document.querySelector('#screenNewCommand .new-form-group:last-of-type .toggle');
+            if (eph) eph.classList.remove('on');
+            showScreen(screenNewCommand);
+        }
+
+        function showMenuButton() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (!bot) return;
+
+            document.getElementById('menuUrl').value = bot.menuUrl || '';
+            document.getElementById('menuTitle').value = bot.menuTitle || '';
+
+            const mode = bot.menuMode || 'compact';
+            document.querySelectorAll('#screenMenuButton .mode-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.mode === mode) item.classList.add('active');
+            });
+
+            showScreen(screenMenuButton);
+        }
+
+        function showTransfer() {
+            document.getElementById('transferRecipient').value = '';
+            showScreen(screenTransfer);
+        }
+
+        function showBotSystem() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (bot) {
+                document.getElementById('bsBotName').textContent = bot.name || 'BotConstructor';
+            }
+            document.getElementById('bsArchiveScreen').classList.remove('open');
+            document.getElementById('bsBottomSheet').classList.remove('open');
+            document.getElementById('bsSheetBackdrop').classList.remove('open');
+            document.getElementById('bsMenuBtn').classList.remove('active');
+
+            showScreen(screenBotSystem);
+        }
+
+        function showBotSettings() {
+            showScreen(screenBotSettings);
+        }
+
+        function showBotLogs() {
+            showScreen(screenBotLogs);
+        }
+
+        function saveMenuButton() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (!bot) return;
+
+            bot.menuUrl = document.getElementById('menuUrl').value.trim();
+            bot.menuTitle = document.getElementById('menuTitle').value.trim();
+
+            const activeMode = document.querySelector('#screenMenuButton .mode-item.active');
+            bot.menuMode = activeMode ? activeMode.dataset.mode : 'compact';
+
+            saveBots(bots);
+            showScreen(screenSettings);
+        }
+
+        function continueTransfer() {
+            const recipient = document.getElementById('transferRecipient').value.trim();
+            if (!recipient) {
+                alert('Please enter a Telegram username');
+                return;
+            }
+
+            const bots = loadBots();
+            bots.splice(currentBotIndex, 1);
+            saveBots(bots);
+            currentBotIndex = -1;
+
+            alert('Ownership transferred to ' + recipient);
+            showList();
+        }
+
+        // ================== СПИСОК БОТОВ ==================
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderBots() {
+            const list = document.getElementById('botsList');
+            const bots = loadBots();
+            list.innerHTML = '';
+
+            bots.forEach((bot, index) => {
+                const item = document.createElement('div');
+                item.className = 'bot-item';
+                item.innerHTML = `
+                    <div class="bot-icon">${BOT_ICON_SVG}</div>
+                    <div class="bot-text">
+                        <div class="bot-name">${escapeHtml(bot.name)}</div>
+                        <div class="bot-username">@${escapeHtml(bot.username)}</div>
+                    </div>
+                    ${ARROW_SVG}
+                `;
+                item.addEventListener('click', () => showSettings(index));
+                list.appendChild(item);
+            });
+        }
+
+        // ================== СПИСОК КОМАНД ==================
+        function renderCommands() {
+            const listEl = document.getElementById('commandsList');
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            listEl.innerHTML = '';
+
+            if (!bot || !bot.commands || bot.commands.length === 0) return;
+
+            bot.commands.forEach(cmd => {
+                const item = document.createElement('div');
+                item.className = 'command-item';
+                item.innerHTML = `
+                    <div class="command-text">
+                        <div class="command-name">${escapeHtml(cmd.name)}</div>
+                        ${cmd.description ? `<div class="command-desc">${escapeHtml(cmd.description)}</div>` : ''}
+                    </div>
+                    ${CMD_ARROW_SVG}
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        // ================== СОЗДАНИЕ БОТА ==================
+        const SAMPLE_NAMES = [
+            'BotPuppeteer', 'BotThinker', 'Photomontager', 'BotDistributor',
+            'BotHelpmate', 'BotCryptographer', 'BotAnimator', 'Photomixer',
+            'BotTranslator', 'BotScheduler'
+        ];
+
+        function pickName() {
+            return SAMPLE_NAMES[Math.floor(Math.random() * SAMPLE_NAMES.length)];
+        }
+
+        function normalizeUsername(name) {
+            let base = String(name || '')
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .replace(/bot$/i, '');
+            if (!base) base = 'My';
+            base = base.charAt(0).toUpperCase() + base.slice(1);
+            return base + 'Bot';
+        }
+
+        function createBot() {
+            const nameInput = document.getElementById('botName');
+            const aboutInput = document.getElementById('botAbout');
+            const usernameInput = document.getElementById('botUsername');
+
+            let name = nameInput.value.trim();
+            if (!name) name = pickName();
+
+            let username = usernameInput.value.trim();
+            if (!username) {
+                username = normalizeUsername(name);
+            } else {
+                username = username.replace(/[^a-zA-Z0-9_]/g, '');
+                if (!/bot$/i.test(username)) username += 'Bot';
+                username = username.charAt(0).toUpperCase() + username.slice(1);
+            }
+
+            const bots = loadBots();
+            bots.push({
+                name: name,
+                about: aboutInput.value.trim(),
+                username: username,
+                welcome: '',
+                commands: [],
+                menuUrl: '',
+                menuTitle: '',
+                menuMode: 'compact'
+            });
+            saveBots(bots);
+
+            showList();
+        }
+
+        // ================== ОБНОВЛЕНИЕ БОТА ==================
+        function updateBot() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (!bot) return;
+
+            const newName = document.getElementById('editBotName').value.trim();
+            if (newName) bot.name = newName;
+            bot.about = document.getElementById('editBotAbout').value.trim();
+            bot.welcome = document.getElementById('editBotWelcome').value.trim();
+
+            saveBots(bots);
+
+            document.getElementById('settingsName').textContent = bot.name;
+            document.getElementById('settingsUsername').textContent = '@' + bot.username;
+            document.getElementById('settingsAvatar').textContent = (bot.name.charAt(0) || 'B').toUpperCase();
+
+            showScreen(screenSettings);
+        }
+
+        // ================== ДОБАВЛЕНИЕ КОМАНДЫ ==================
+        function addCommand() {
+            const bots = loadBots();
+            const bot = bots[currentBotIndex];
+            if (!bot) return;
+
+            let name = document.getElementById('cmdName').value.trim();
+            const desc = document.getElementById('cmdDesc').value.trim();
+
+            name = name.replace(/^\/+/, '');
+
+            if (!name) {
+                alert('Please enter a command name');
+                return;
+            }
+
+            name = '/' + name;
+
+            if (!bot.commands) bot.commands = [];
+            bot.commands.push({ name: name, description: desc });
+
+            saveBots(bots);
+
+            showCommands();
+        }
+
+        // ================== УДАЛЕНИЕ БОТА ==================
+        document.getElementById('deleteBotBtn').addEventListener('click', () => {
+            if (currentBotIndex < 0) return;
+            const bots = loadBots();
+            bots.splice(currentBotIndex, 1);
+            saveBots(bots);
+            currentBotIndex = -1;
+            showList();
+        });
+
+        // ================== ОБРАБОТЧИКИ ==================
+        document.getElementById('createBotBtn').addEventListener('click', showCreate);
+        document.getElementById('submitBotBtn').addEventListener('click', createBot);
+        document.getElementById('backFromCreate').addEventListener('click', showList);
+        document.getElementById('backFromSettings').addEventListener('click', showList);
+        document.getElementById('editInfoBtn').addEventListener('click', showEdit);
+        document.getElementById('backFromEdit').addEventListener('click', () => showScreen(screenSettings));
+        document.getElementById('updateBotBtn').addEventListener('click', updateBot);
+
+        document.getElementById('commandsBtn').addEventListener('click', showCommands);
+        document.getElementById('backFromCommands').addEventListener('click', () => showScreen(screenSettings));
+        document.getElementById('addCommandBtn').addEventListener('click', showNewCommand);
+        document.getElementById('backFromNewCommand').addEventListener('click', showCommands);
+        document.getElementById('submitCommandBtn').addEventListener('click', addCommand);
+
+        document.getElementById('miniAppsBtn').addEventListener('click', showMenuButton);
+        document.getElementById('backFromMenuButton').addEventListener('click', () => showScreen(screenSettings));
+        document.getElementById('saveMenuBtn').addEventListener('click', saveMenuButton);
+
+        document.getElementById('botSettingsBtn').addEventListener('click', showBotSettings);
+        document.getElementById('backFromBotSettings').addEventListener('click', () => showScreen(screenSettings));
+
+        document.getElementById('botSystemBtn').addEventListener('click', showBotSystem);
+
+        document.getElementById('botLogsBtn').addEventListener('click', showBotLogs);
+        document.getElementById('backFromBotLogs').addEventListener('click', () => showScreen(screenSettings));
+
+        document.getElementById('transferOwnershipBtn').addEventListener('click', showTransfer);
+        document.getElementById('backFromTransfer').addEventListener('click', () => showScreen(screenSettings));
+        document.getElementById('continueTransferBtn').addEventListener('click', continueTransfer);
+
+        document.querySelectorAll('#screenMenuButton .mode-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('#screenMenuButton .mode-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.toggle').forEach(t => {
+            t.addEventListener('click', e => {
+                e.stopPropagation();
+                t.classList.toggle('on');
+            });
+        });
+
+        document.querySelectorAll('.toggle-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                if (e.target.classList.contains('toggle')) return;
+                const toggle = row.querySelector('.toggle');
+                if (toggle) toggle.classList.toggle('on');
+            });
+        });
+
+        // ================== BOT SYSTEM ЛОГИКА ==================
+        (function () {
+            const bsToast = document.getElementById('bsToast');
+            let bsToastTimer = null;
+
+            function bsShowToast(message) {
+                bsToast.textContent = message;
+                bsToast.classList.add('show');
+                clearTimeout(bsToastTimer);
+                bsToastTimer = setTimeout(() => bsToast.classList.remove('show'), 1800);
+            }
+
+            const bsInput = document.getElementById('bsMessageInput');
+            const bsSearchWrapper = document.getElementById('bsSearchWrapper');
+
+            bsInput.addEventListener('input', () => {
+                bsSearchWrapper.classList.toggle('filled', bsInput.value.trim().length > 0);
+            });
+
+            const bsMenuBtn = document.getElementById('bsMenuBtn');
+            const bsCloseMenuBtn = document.getElementById('bsCloseMenuBtn');
+            const bsBottomSheet = document.getElementById('bsBottomSheet');
+            const bsSheetBackdrop = document.getElementById('bsSheetBackdrop');
+
+            let bsIsAnimating = false;
+
+            function bsOpenSheet() {
+                if (bsIsAnimating) return;
+                bsIsAnimating = true;
+                bsBottomSheet.classList.add('open');
+                bsSheetBackdrop.classList.add('open');
+                bsMenuBtn.classList.add('active');
+                setTimeout(() => bsIsAnimating = false, 450);
+            }
+
+            function bsCloseSheet() {
+                if (bsIsAnimating) return;
+                bsIsAnimating = true;
+                bsBottomSheet.classList.remove('open');
+                bsSheetBackdrop.classList.remove('open');
+                bsMenuBtn.classList.remove('active');
+                setTimeout(() => bsIsAnimating = false, 450);
+            }
+
+            bsMenuBtn.addEventListener('click', () => {
+                bsBottomSheet.classList.contains('open') ? bsCloseSheet() : bsOpenSheet();
+            });
+
+            bsCloseMenuBtn.addEventListener('click', bsCloseSheet);
+            bsSheetBackdrop.addEventListener('click', bsCloseSheet);
+
+            let bsStartY = 0, bsCurrentY = 0, bsIsDragging = false;
+
+            bsBottomSheet.addEventListener('touchstart', e => {
+                bsStartY = e.touches[0].clientY;
+                bsIsDragging = true;
+                bsBottomSheet.style.transition = 'none';
+            }, { passive: true });
+
+            bsBottomSheet.addEventListener('touchmove', e => {
+                if (!bsIsDragging) return;
+                bsCurrentY = e.touches[0].clientY;
+                const delta = Math.max(0, bsCurrentY - bsStartY);
+                bsBottomSheet.style.transform = `translateY(${delta}px)`;
+                bsBottomSheet.style.opacity = String(1 - Math.min(delta / 300, 0.6));
+            }, { passive: true });
+
+            bsBottomSheet.addEventListener('touchend', () => {
+                if (!bsIsDragging) return;
+                bsIsDragging = false;
+                const delta = bsCurrentY - bsStartY;
+                bsBottomSheet.style.transition = '';
+                bsBottomSheet.style.transform = '';
+                bsBottomSheet.style.opacity = '';
+                if (delta > 100) bsCloseSheet();
+                bsStartY = 0;
+                bsCurrentY = 0;
+            });
+
+            document.querySelectorAll('.bs-command-sheet-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const code = item.querySelector('.bs-command-sheet-code').textContent;
+                    bsInput.value = code + ' ';
+                    bsInput.focus();
+                    bsSearchWrapper.classList.add('filled');
+                    bsCloseSheet();
+                });
+            });
+
+            const bsArchiveScreen = document.getElementById('bsArchiveScreen');
+            const bsArchiveTopBtn = document.getElementById('bsArchiveTopBtn');
+            const bsArchiveBackBtn = document.getElementById('bsArchiveBackBtn');
+
+            bsArchiveTopBtn.addEventListener('click', () => bsArchiveScreen.classList.add('open'));
+            bsArchiveBackBtn.addEventListener('click', () => bsArchiveScreen.classList.remove('open'));
+
+            document.querySelectorAll('.bs-btn-copy').forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    const realToken = `8337692374:AAHvoLwKFRqUcoZLGpmz9qqTJIng1C1bUz${index + 1}`;
+
+                    if (navigator.clipboard?.writeText) {
+                        navigator.clipboard.writeText(realToken)
+                            .then(() => bsShowToast('✅ Токен скопирован'))
+                            .catch(() => bsFallbackCopy(realToken));
+                    } else {
+                        bsFallbackCopy(realToken);
+                    }
+                });
+            });
+
+            function bsFallbackCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    bsShowToast('✅ Токен скопирован');
+                } catch (e) {
+                    bsShowToast('❌ Не удалось скопировать');
+                }
+                document.body.removeChild(ta);
+            }
+
+            document.querySelectorAll('.bs-btn-revoke').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const card = btn.closest('.bs-bordered-section');
+                    const tokenSpan = card.querySelector('.bs-token-value');
+
+                    tokenSpan.style.opacity = '0.4';
+
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Revoked';
+                    btn.disabled = true;
+                    btn.style.opacity = '0.6';
+
+                    bsShowToast('🔒 Токен отозван');
+
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        tokenSpan.style.opacity = '1';
+                    }, 1800);
+                });
+            });
+
+            document.getElementById('bsSaveBtn').addEventListener('click', () => {
+                bsShowToast('💾 Изменения сохранены');
+            });
+
+            document.getElementById('bsBackBtn').addEventListener('click', () => {
+                showScreen(screenSettings);
+            });
+        })();
+
+        // ================== BOT SETTINGS ЛОГИКА ==================
+        function setupRights(itemId, counterId, listId, switchId) {
+            const item = document.getElementById(itemId);
+            const counter = document.getElementById(counterId);
+            const list = document.getElementById(listId);
+            const header = item.querySelector('[data-toggle-expand]');
+            const switchInput = document.getElementById(switchId);
+            const counterText = counter.querySelector('.counter-text');
+
+            const rights = list.querySelectorAll('[data-right]');
+            const total = rights.length;
+
+            function updateCounter() {
+                const selected = list.querySelectorAll('.bt-right-item.selected').length;
+                counterText.textContent = `${selected}/${total}`;
+            }
+
+            function selectAll() {
+                rights.forEach(r => r.classList.add('selected'));
+                switchInput.checked = true;
+                updateCounter();
+            }
+
+            function deselectAll() {
+                rights.forEach(r => r.classList.remove('selected'));
+                switchInput.checked = false;
+                updateCounter();
+            }
+
+            header.addEventListener('click', (e) => {
+                if (e.target.closest('.bt-switch')) return;
+                if (e.target.closest('.bt-right-item')) return;
+                item.classList.toggle('expanded');
+            });
+
+            rights.forEach(right => {
+                right.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    right.classList.toggle('selected');
+                    updateCounter();
+
+                    const selected = list.querySelectorAll('.bt-right-item.selected').length;
+                    if (selected === 0) {
+                        switchInput.checked = false;
+                        item.classList.remove('expanded');
+                    } else {
+                        switchInput.checked = true;
+                    }
+                });
+            });
+
+            switchInput.addEventListener('change', () => {
+                if (switchInput.checked) {
+                    selectAll();
+                    item.classList.add('expanded');
+                } else {
+                    deselectAll();
+                    item.classList.remove('expanded');
+                }
+            });
+
+            updateCounter();
+        }
+
+        setupRights('groupRightsItem', 'groupCounter', 'groupRightsList', 'groupSwitch');
+        setupRights('channelRightsItem', 'channelCounter', 'channelRightsList', 'channelSwitch');
+
+        // ================== СТАРТ ==================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBots();
+        });
+    </script>
+</body>
+</html>
